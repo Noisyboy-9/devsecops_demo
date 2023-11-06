@@ -3,7 +3,7 @@ package service
 import "context"
 
 func Init() {
-	InitHttpServer()
+	go InitHttpServer()
 }
 
 func Terminate(cancelCtx context.Context) {

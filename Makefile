@@ -1,5 +1,5 @@
-sample: 
-	go run main.go sample
+serve: 
+	go run main.go serve 
 
 build: 
 	go build -o ./build/project main.go 

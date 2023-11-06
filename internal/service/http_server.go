@@ -7,7 +7,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/noisyboy-9/golang_api_template/internal/config"
-	"github.com/noisyboy-9/golang_api_template/internal/handler"
 	"github.com/noisyboy-9/golang_api_template/internal/log"
 )
 
@@ -34,7 +33,6 @@ func InitHttpServer() {
 }
 
 func (server *httpServer) registerRoutes() {
-	HttpServer.e.GET("/", handler.SayHello)
 }
 
 func (server *httpServer) setupMiddlewares() {
