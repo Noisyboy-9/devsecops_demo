@@ -4,8 +4,10 @@ import "context"
 
 func Init() {
 	go InitHttpServer()
+	go InitRedisConnection()
 }
 
 func Terminate(cancelCtx context.Context) {
-	TerminateHttpServer(cancelCtx)
+	go TerminateHttpServer(cancelCtx)
+	go TerminateRedisConnection(cancelCtx)
 }
