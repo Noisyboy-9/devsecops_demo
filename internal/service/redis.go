@@ -2,14 +2,16 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/noisyboy-9/golang_api_template/internal/config"
 	"github.com/noisyboy-9/golang_api_template/internal/log"
+	"github.com/noisyboy-9/golang_api_template/internal/model"
 	"github.com/redis/go-redis/v9"
 )
 
 type redisManager struct {
-	Client *redis.Client
+	client *redis.Client
 }
 
 var Redis *redisManager
@@ -18,7 +20,7 @@ func InitRedisConnection() {
 	log.App.Info("connecting to redis ... ")
 	Redis = new(redisManager)
 
-	Redis.Client = redis.NewClient(&redis.Options{
+	Redis.client = redis.NewClient(&redis.Options{
 		Addr:     config.Redis.Address,
 		Password: config.Redis.Password,
 		DB:       config.Redis.DB,
@@ -28,16 +30,45 @@ func InitRedisConnection() {
 		},
 	})
 
-	log.App.Infof("pinging redis server...")
 	ctx, cancel := context.WithTimeout(context.Background(), config.Redis.DialTimeout)
-	if _, err := Redis.Client.Ping(ctx).Result(); err != nil {
+	defer cancel()
+
+	log.App.Infof("pinging redis server...")
+	if _, err := Redis.client.Ping(ctx).Result(); err != nil {
 		log.App.WithError(err).Panicln("can't ping redis server")
 	}
-
 	log.App.Infof("redis ping successful")
-	defer cancel()
 }
 
 func TerminateRedisConnection(cancelCtx context.Context) {
-	Redis.Client.Close()
+	Redis.client.Close()
+}
+
+func (redis *redisManager) ContainsCity(city string) (bool, error) {
+	readCtx, cancel := context.WithTimeout(context.Background(), config.Redis.ReadTimeout)
+	defer cancel()
+
+	exists, err := redis.client.Exists(readCtx, city).Result()
+	if err != nil {
+		return false, err
+	}
+
+	return exists == 1, nil
+}
+
+func (redis *redisManager) WriteCityWeatherStatus(city string, status *model.WeatherStatus) error {
+	statusJson, err := json.Marshal(status)
+	if err != nil {
+		return err
+	}
+
+	writeCtx, cancel := context.WithTimeout(context.Background(), config.Redis.WriteTimeout)
+	defer cancel()
+
+	_, err = redis.client.Set(writeCtx, city, string(statusJson), config.Redis.WeatherStatusTTL).Result()
+	return err
+}
+
+func (redis *redisManager) GetCityWeatherStatus(city string) (*model.WeatherStatus, error) {
+
 }
