@@ -16,9 +16,16 @@ func LoadViper() {
 }
 
 func Init() {
+	var err error
 	HttpServer = new(httpServer)
-	err := viper.UnmarshalKey("httpServer", HttpServer)
+	err = viper.UnmarshalKey("httpServer", HttpServer)
 	if err != nil {
-		log.App.Fatal(err)
+		log.App.Panicln(err.Error())
+	}
+
+	Redis = new(redis)
+	err = viper.UnmarshalKey("redis", Redis)
+	if err != nil {
+		log.App.Panicln(err.Error())
 	}
 }
