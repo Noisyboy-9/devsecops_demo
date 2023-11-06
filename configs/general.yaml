@@ -8,3 +8,11 @@ httpServer:
 logging:
   stdout: true
   level: "debug"
+
+redis:
+  address: "redis:6379"
+  password: ""
+  DB:  0
+  dialTimeout: "5s"
+  readTimeout: "3s"
+  writeTimeout: "3s"
