@@ -9,6 +9,8 @@ type redis struct {
 	DialTimeout  time.Duration `json:"dial_timeout,omitempty" default:"dial_timeout"`
 	ReadTimeout  time.Duration `json:"read_timeout,omitempty" default:"read_timeout"`
 	WriteTimeout time.Duration `json:"write_timeout,omitempty" default:"write_timeout"`
+
+	WeatherStatusTTL time.Duration `json:"weather_status_ttl,omitempty"`
 }
 
 var Redis *redis
