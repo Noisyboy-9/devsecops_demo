@@ -28,4 +28,10 @@ func Init() {
 	if err != nil {
 		log.App.Panicln(err.Error())
 	}
+
+	OpenWeather = new(openWeather)
+	err = viper.UnmarshalKey("openWeather", OpenWeather)
+	if err != nil {
+		log.App.Panic(err.Error())
+	}
 }
