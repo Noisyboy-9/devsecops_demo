@@ -16,3 +16,6 @@ redis:
   dialTimeout: "5s"
   readTimeout: "3s"
   writeTimeout: "3s"
+
+openWeather:
+  apikey: "4c70d6d8c85edf0d38ab7e27b1912fc8"
