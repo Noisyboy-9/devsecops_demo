@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  app-deployment
+  namespace: default
+  labels:
+    app:  app-deployment
+spec:
+  selector:
+    matchLabels:
+      app: app-deployment
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app:  app-deployment
+    spec:
+      containers:
+      - name:  app-deployment
+        image: noisyboy9/weather-api:v1.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort:  8080
+          name:  app-deployment
+        volumeMounts:
+        - name: app-configs 
+          mountPath: /app/configs/general.yaml
+          subPath: config.yaml
+          readOnly: true
+      volumes:
+        - name: app-configs 
+          configMap:
+            name: app-configmap 
+      restartPolicy: Always
+

@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-configmap
+  namespace: default
+data: 
+  general.yaml: |-
+    app:
+      env: "dev"
+
+    httpServer:
+      host: "0.0.0.0"
+      port: 8080
+
+    logging:
+      stdout: true
+      level: "debug"
+
+    redis:
+      address: "redis:6379"
+      password: "somepassword"
+      DB:  0
+      dialTimeout: "5s"
+      readTimeout: "3s"
+      writeTimeout: "3s"
+      weatherStatusTTL: "5m"
+
+    openWeather:
+      apikey: "4c70d6d8c85edf0d38ab7e27b1912fc8"
+
