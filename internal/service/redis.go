@@ -69,6 +69,19 @@ func (redis *redisManager) WriteCityWeatherStatus(city string, status *model.Wea
 	return err
 }
 
-func (redis *redisManager) GetCityWeatherStatus(city string) (*model.WeatherStatus, error) {
+func (redis *redisManager) GetCityWeatherStatus(city string) (status *model.WeatherStatus, err error) {
+	readCtx, cancel := context.WithTimeout(context.Background(), config.Redis.ReadTimeout)
+	defer cancel()
 
+	statusJson, err := redis.client.Get(readCtx, city).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	status = new(model.WeatherStatus)
+	if err = json.Unmarshal([]byte(statusJson), status); err != nil {
+		return nil, err
+	}
+
+	return status, nil
 }

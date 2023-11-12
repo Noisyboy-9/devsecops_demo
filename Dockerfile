@@ -1,12 +1,15 @@
 FROM golang:alpine AS builder
 WORKDIR /app
-COPY . .
+
+COPY go.mod go.sum ./
 RUN go mod download
-RUN go build -o /project main.go
+
+COPY . .
+RUN go build -o /api main.go
 
 FROM alpine:latest 
-WORKDIR / 
-COPY --from=builder /project /project
+WORKDIR /app 
+COPY --from=builder ./api /app/api
 EXPOSE 8080
-ENTRYPOINT ["/project"]
+ENTRYPOINT ["./api", "serve"]
 

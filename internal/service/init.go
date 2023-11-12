@@ -5,6 +5,7 @@ import "context"
 func Init() {
 	go InitHttpServer()
 	go InitRedisConnection()
+	go InitOpenWeatherConnection()
 }
 
 func Terminate(cancelCtx context.Context) {

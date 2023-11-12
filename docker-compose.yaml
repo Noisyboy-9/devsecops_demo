@@ -1,7 +1,16 @@
 services:
+  redis: 
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass somepassword 
+
   api:
-    build: .
+    depends_on: [redis]
+    build: . 
     ports:
       - "8080:8080"
     volumes:
-      - ./configs/:/configs
+      - ./configs/:/app/configs
+

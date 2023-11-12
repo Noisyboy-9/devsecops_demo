@@ -11,7 +11,7 @@ logging:
 
 redis:
   address: "redis:6379"
-  password: ""
+  password: "somepassword"
   DB:  0
   dialTimeout: "5s"
   readTimeout: "3s"

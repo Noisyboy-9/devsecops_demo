@@ -9,7 +9,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/noisyboy-9/golang_api_template/internal/config"
 	"github.com/noisyboy-9/golang_api_template/internal/log"
-	"github.com/noisyboy-9/golang_api_template/internal/service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,16 +26,14 @@ func InitHttpServer() {
 	HttpServer.setupMiddlewares()
 	HttpServer.registerRoutes()
 
-	go func() {
-		serverUrl := fmt.Sprintf("%s:%d", config.HttpServer.Host, config.HttpServer.Port)
-		if err := HttpServer.e.Start(serverUrl); err != nil {
-			log.App.WithField("err", err.Error()).Fatalf("can't start web server")
-		}
-	}()
+	serverUrl := fmt.Sprintf("%s:%d", config.HttpServer.Host, config.HttpServer.Port)
+	if err := HttpServer.e.Start(serverUrl); err != nil {
+		log.App.WithField("err", err.Error()).Fatalf("can't start web server")
+	}
 }
 
 func (server *httpServer) registerRoutes() {
-	server.e.GET("/v1/status/{city}", cityHandler)
+	server.e.GET("/v1/status/:city", cityHandler)
 }
 
 func (server *httpServer) setupMiddlewares() {
@@ -50,7 +47,7 @@ func TerminateHttpServer(ctx context.Context) {
 func cityHandler(ctx echo.Context) error {
 	city := ctx.Param("city")
 
-	contains, err := service.Redis.ContainsCity(city)
+	contains, err := Redis.ContainsCity(city)
 	if err != nil {
 		log.App.WithFields(logrus.Fields{
 			"err":  err.Error(),
@@ -59,22 +56,26 @@ func cityHandler(ctx echo.Context) error {
 	}
 
 	if contains {
-		status, err := service.Redis.GetCityWeatherStatus(city)
+		log.App.WithFields(logrus.Fields{"city": city}).Info("city was already cached, using cache for response")
+		status, err := Redis.GetCityWeatherStatus(city)
 		if err != nil {
 			log.App.WithFields(logrus.Fields{
 				"err":  err.Error(),
 				"city": city,
 			}).Error("can't get city weather status from redis")
-
-			ctx.JSON(http.StatusOK, status)
 		}
+
+		return ctx.JSON(http.StatusOK, status)
 	}
 
-	status, err := service.OpenWeather.GetWeatherByCityName(city)
+	log.App.WithFields(logrus.Fields{"city": city}).Info("city wasn't cached, sending request to open-weather-api and caching it")
+	status, err := OpenWeather.GetWeatherByCityName(city)
 	if err != nil {
 		log.App.WithError(err).Error("can't get weather status from open-weather-api")
 	}
 
-	service.Redis.WriteCityWeatherStatus(city, status)
+	if err := Redis.WriteCityWeatherStatus(city, status); err != nil {
+		log.App.WithError(err).Error("can't write city weather status to redis")
+	}
 	return ctx.JSON(http.StatusOK, status)
 }
