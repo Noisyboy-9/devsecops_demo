@@ -30,7 +30,7 @@ spec:
         volumeMounts:
         - name: app-configs 
           mountPath: /app/configs/general.yaml
-          subPath: config.yaml
+          subPath: general.yaml
           readOnly: true
       volumes:
         - name: app-configs 

@@ -17,7 +17,7 @@ data:
       level: "debug"
 
     redis:
-      address: "redis:6379"
+      address: "redis-service:6379"
       password: "somepassword"
       DB:  0
       dialTimeout: "5s"

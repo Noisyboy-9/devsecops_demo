@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  redis
+  namespace: default
+  labels:
+    app:  redis
+spec:
+  selector:
+    matchLabels:
+      app: redis
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app:  redis
+    spec:
+      containers:
+      - name:  redis
+        image:  redis:7.2.3
+        imagePullPolicy: IfNotPresent
+        args: ["--requirepass", "somepassword"]
+      restartPolicy: Always
+
