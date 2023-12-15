@@ -15,10 +15,18 @@ spec:
       labels:
         app:  redis
     spec:
+      volumes:
+        - name: redis-persistent-storage
+          persistentVolumeClaim:
+            claimName: redis-pvc
       containers:
       - name:  redis
         image:  redis:7.2.3
         imagePullPolicy: IfNotPresent
-        args: ["--requirepass", "somepassword"]
+        volumeMounts:
+            - name: redis-persistent-storage
+              mountPath: /data
+        args: ["--requirepass", "somepassword", "--appendonly", "yes", "--save", "900", "1", "--save", "30", "1"]
       restartPolicy: Always
+
 
